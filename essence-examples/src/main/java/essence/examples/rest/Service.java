@@ -1,9 +1,13 @@
 package essence.examples.rest;
 
-import static essence.examples.main.Main.Account;
+import essence.examples.model.Account;
 
 public interface Service {
 
-    Account createAccount(Account account);
+    Account save(Account account);
+
+    Boolean delete(Long id);
+
+    Account find(Long id);
 
 }

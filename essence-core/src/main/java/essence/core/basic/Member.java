@@ -2,8 +2,12 @@ package essence.core.basic;
 
 import essence.core.random.RandomGenerator;
 import essence.core.utils.LazyValue;
+import essence.core.utils.Pair;
 import essence.core.validation.ValidationReporter;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collector;
@@ -12,6 +16,7 @@ import java.util.stream.Stream;
 import static essence.core.random.RandomGeneration.generator;
 import static java.lang.Integer.max;
 import static java.lang.Integer.min;
+import static java.util.stream.Collectors.*;
 import static java.util.stream.IntStream.range;
 
 public abstract class Member<TParent, TContainer, T> {
@@ -26,7 +31,7 @@ public abstract class Member<TParent, TContainer, T> {
     private final BiFunction<TParent, TContainer, TParent> setter;
 
     public Member(
-        Function<Member<?, ?, ?>, String> name,
+        Function<Member, String> name,
         DataType<T> type,
         BaseCompositeType<TParent> parentType,
         int minMultiplicity,
@@ -44,12 +49,26 @@ public abstract class Member<TParent, TContainer, T> {
         this.setter = setter;
     }
 
+    public Map<T, List<TParent>> index(Collection<TParent> parents) {
+        return parents.stream()
+            .flatMap(v -> valuesFrom(v).map(k -> new Pair<>(k, v)))
+            .collect(groupingBy(Pair::getKey, mapping(Pair::getValue, toList())));
+    }
+
     public TContainer of(TParent parent) {
         return getter.apply(parent);
     }
 
+    public Stream<T> valuesFrom(TParent parent) {
+        return stream(of(parent));
+    }
+
     public TParent update(TParent parent, TContainer value) {
         return setter.apply(parent, value);
+    }
+
+    public TParent update(TParent parent, Stream<T> values) {
+        return setter.apply(parent, values.collect(collector()));
     }
 
     public abstract <R> R accept(MemberVisitor<TParent, T, R> visitor);

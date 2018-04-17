@@ -47,9 +47,9 @@ public class GenericJsonReader implements SchemaBasedJsonReader, JsonParsing {
 
     private void expectNumber(boolean integer) {
         expect(VALUE_NUMBER);
-        if (!parser.isIntegralNumber() ^ integer) {
-            throw new UnexpectedJsonTokenException();
-        }
+//        if (!parser.isIntegralNumber() ^ integer) {
+//            throw new UnexpectedJsonTokenException();
+//        }
     }
 
     @Override

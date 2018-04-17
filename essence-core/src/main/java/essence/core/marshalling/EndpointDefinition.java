@@ -2,6 +2,8 @@ package essence.core.marshalling;
 
 import essence.core.basic.DataType;
 
+import java.io.*;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public class EndpointDefinition<I, O> {
@@ -30,6 +32,24 @@ public class EndpointDefinition<I, O> {
 
     public Function<String, String> service(Function<I, O> serviceFunction) {
         return inputUnmarshaller.andThen(serviceFunction).andThen(outputMarshaller);
+    }
+
+    public BiConsumer<Reader, Writer> streamingService(Function<I, O> serviceFunction) {
+        return (in, out) -> {
+            I input = inputUnmarshaller.unmarshal(in);
+            O output = serviceFunction.apply(input);
+            try {
+                outputMarshaller.marshal(output, out);
+                out.flush();
+                out.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        };
+    }
+
+    public static BiConsumer<InputStream, OutputStream> encoded(BiConsumer<Reader, Writer> serviceFunction) {
+        return (in, out) -> serviceFunction.accept(new InputStreamReader(in), new OutputStreamWriter(out));
     }
 
     public Function<I, O> client(Function<String, String> sender) {
