@@ -1,0 +1,5 @@
+rootProject.name = 'essence-all'
+include 'essence-core'
+include 'essence-json'
+include 'essence-examples'
+
