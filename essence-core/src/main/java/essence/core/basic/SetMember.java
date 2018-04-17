@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 public class SetMember<TParent, T> extends Member<TParent, Set<T>, T> {
 
     public SetMember(
-        Function<Member<?, ?, ?>, String> name,
+        Function<Member, String> name,
         DataType<T> type,
         BaseCompositeType<TParent> parentType,
         int minMultiplicity,

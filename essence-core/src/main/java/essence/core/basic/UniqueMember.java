@@ -31,7 +31,7 @@ public class UniqueMember<TParent, T> extends Member<TParent, T, T> {
     );
 
     public UniqueMember(
-        Function<Member<?, ?, ?>, String> name,
+        Function<Member, String> name,
         DataType<T> type,
         BaseCompositeType<TParent> parentType,
         boolean mandatory,

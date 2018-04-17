@@ -1,11 +1,8 @@
 package essence.core.basic;
 
-import essence.core.utils.LazyValue;
+import essence.core.utils.MemberNaming;
 
-import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -17,7 +14,7 @@ public class CompositeType<T> extends BaseCompositeType<T> {
     public class One<TChild> extends UniqueMember<T, TChild> {
 
         private One(DataType<TChild> type, boolean mandatory, Function<T, TChild> getter, BiFunction<T, TChild, T> setter) {
-            super(memberName(), type, CompositeType.this, mandatory, getter, setter);
+            super(memberNaming, type, CompositeType.this, mandatory, getter, setter);
         }
 
     }
@@ -25,7 +22,7 @@ public class CompositeType<T> extends BaseCompositeType<T> {
     public class Many<TChild> extends SetMember<T, TChild> {
 
         private Many(DataType<TChild> type, int minMultiplicity, int maxMultiplicity, Function<T, Set<TChild>> getter, BiFunction<T, Set<TChild>, T> setter) {
-            super(memberName(), type, CompositeType.this, minMultiplicity, maxMultiplicity, getter, setter);
+            super(memberNaming, type, CompositeType.this, minMultiplicity, maxMultiplicity, getter, setter);
         }
 
     }
@@ -33,41 +30,15 @@ public class CompositeType<T> extends BaseCompositeType<T> {
     public class OrderedMany<TChild> extends ListMember<T, TChild> {
 
         private OrderedMany(DataType<TChild> type, int minMultiplicity, int maxMultiplicity, Function<T, List<TChild>> getter, BiFunction<T, List<TChild>, T> setter) {
-            super(memberName(), type, CompositeType.this, minMultiplicity, maxMultiplicity, getter, setter);
+            super(memberNaming, type, CompositeType.this, minMultiplicity, maxMultiplicity, getter, setter);
         }
 
     }
 
-    private final LazyValue<Map<Member<?, ?, ?>, String>> memberNames = LazyValue.from(this::memberNames);
+    private final MemberNaming<CompositeType<T>, Member> memberNaming = new MemberNaming<>(this, Member.class);
 
     public CompositeType(Supplier<T> constructor) {
         super(constructor);
-    }
-
-    private Map<Member<?, ?, ?>, String> memberNames() {
-        Map<Member<?, ?, ?>, String> result = new HashMap<>();
-        for (Field field : getClass().getFields()) {
-            if (isMember(field)) {
-                result.put(getMember(field), field.getName());
-            }
-        }
-        return result;
-    }
-
-    private boolean isMember(Field field) {
-        return Member.class.isAssignableFrom(field.getType());
-    }
-
-    private Member<?, ?, ?> getMember(Field field) {
-        try {
-            return (Member<?, ?, ?>) field.get(this);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private Function<Member<?, ?, ?>, String> memberName() {
-        return m -> memberNames.get().get(m);
     }
 
     private <C> One<C> one(DataType<C> type, boolean mandatory, Function<T, C> getter, BiFunction<T, C, T> setter) {

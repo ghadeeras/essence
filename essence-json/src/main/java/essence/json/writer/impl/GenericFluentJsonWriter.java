@@ -5,6 +5,7 @@ import essence.json.writer.impl.gen.RootJsonGenerator;
 
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
+import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +25,10 @@ public class GenericFluentJsonWriter extends BaseFluentJsonWriter<FluentJsonWrit
     @Override
     protected Flusher context() {
         return () -> generator.wrappedGenerator().flush();
+    }
+
+    public static void main(String[] args) {
+        generator(new PrintWriter(System.out)).write("").flush();
     }
 
 }

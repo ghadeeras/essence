@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 public class ListMember<TParent, T> extends Member<TParent, List<T>, T> {
 
     public ListMember(
-        Function<Member<?, ?, ?>, String> name,
+        Function<Member, String> name,
         DataType<T> type,
         BaseCompositeType<TParent> parentType,
         int minMultiplicity,
