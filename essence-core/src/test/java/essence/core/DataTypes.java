@@ -10,6 +10,7 @@ import java.util.List;
 import static essence.core.enumerables.Enumerables.enumeration;
 import static essence.core.enumerables.Enumerables.oneOf;
 import static essence.core.primitives.Primitives.*;
+import static java.util.Comparator.comparingInt;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
@@ -54,8 +55,7 @@ public class DataTypes {
         
     }
 
-    static Comparator<Integer> integerComparator = (i1, i2) -> i1 - i2;
-    static OneOf<Integer> fibonacci = oneOf(integerComparator, 1, 2, 3, 5, 8, 13, 21);
+    static OneOf<Integer> fibonacci = oneOf(1, 2, 3, 5, 8, 13, 21).orderedBy((i1, i2) -> i1 - i2);
 
     @Test
     public void enumerables() {
