@@ -1,7 +1,6 @@
 package essence.jdbc;
 
 import essence.jdbc.mapping.Column;
-import essence.jdbc.mapping.ColumnAlias;
 import essence.jdbc.mapping.Table;
 import essence.jdbc.mapping.columns.*;
 import essence.jdbc.visitors.ColumnVisitor;

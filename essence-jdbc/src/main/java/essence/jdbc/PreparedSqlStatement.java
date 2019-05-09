@@ -1,6 +1,5 @@
 package essence.jdbc;
 
-import essence.jdbc.mapping.ColumnAlias;
 import essence.jdbc.mapping.Table;
 
 import java.util.List;

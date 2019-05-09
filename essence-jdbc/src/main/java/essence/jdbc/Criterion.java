@@ -1,6 +1,5 @@
 package essence.jdbc;
 
-import essence.jdbc.mapping.ColumnAlias;
 import essence.jdbc.visitors.CriterionVisitor;
 
 import java.util.Collection;

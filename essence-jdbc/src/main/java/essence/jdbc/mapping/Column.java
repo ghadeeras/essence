@@ -1,6 +1,8 @@
 package essence.jdbc.mapping;
 
 import essence.core.utils.LazyValue;
+import essence.jdbc.ColumnAlias;
+import essence.jdbc.View.TableAlias;
 import essence.jdbc.visitors.ColumnVisitor;
 
 import java.sql.PreparedStatement;

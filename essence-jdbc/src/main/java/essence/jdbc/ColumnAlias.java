@@ -1,4 +1,7 @@
-package essence.jdbc.mapping;
+package essence.jdbc;
+
+import essence.jdbc.View.TableAlias;
+import essence.jdbc.mapping.Column;
 
 public class ColumnAlias<T, V> {
 
