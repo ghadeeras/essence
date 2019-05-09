@@ -2,6 +2,7 @@ package essence.jdbc.mapping;
 
 import essence.core.basic.UniqueMember;
 import essence.core.utils.MemberNaming;
+import essence.jdbc.View.TableAlias;
 import essence.jdbc.mapping.columns.*;
 
 import java.math.BigDecimal;
