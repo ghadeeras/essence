@@ -10,7 +10,6 @@ import java.util.List;
 import static essence.core.enumerables.Enumerables.enumeration;
 import static essence.core.enumerables.Enumerables.oneOf;
 import static essence.core.primitives.Primitives.*;
-import static java.util.Comparator.comparingInt;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
