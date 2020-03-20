@@ -16,6 +16,11 @@ public class DefaultRandomGenerator implements RandomGenerator {
     }
 
     @Override
+    public long nextLong(long origin, long bound) {
+        return ThreadLocalRandom.current().nextLong(origin, bound);
+    }
+
+    @Override
     public BigDecimal nextDecimal(BigDecimal origin, BigDecimal bound) {
         return bound
             .subtract(origin)

@@ -1,6 +1,7 @@
 package essence.core.utils;
 
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class LazyValue<T> implements Supplier<T> {
@@ -15,6 +16,14 @@ public class LazyValue<T> implements Supplier<T> {
 
     public static <T> LazyValue<T> from(Supplier<T> supplier) {
         return new LazyValue<>(supplier);
+    }
+
+    public <M> LazyValue<M> map(Function<T, M> mapper) {
+        return LazyValue.from(() -> mapper.apply(supplier.get()));
+    }
+
+    public <M> LazyValue<M> flatMap(Function<T, LazyValue<M>> mapper) {
+        return LazyValue.from(() -> mapper.apply(supplier.get()).get());
     }
 
     @Override

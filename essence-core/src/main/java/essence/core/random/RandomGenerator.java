@@ -9,6 +9,8 @@ public interface RandomGenerator {
 
     int nextInt(int origin, int bound);
 
+    long nextLong(long origin, long bound);
+
     default char nextChar(char origin, char bound) {
         return (char) nextInt(origin, bound);
     }

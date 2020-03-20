@@ -17,7 +17,7 @@ public class Limit<T> {
 
     private final int order;
 
-    public Limit(T value, boolean lower, boolean inclusive) {
+    Limit(T value, boolean lower, boolean inclusive) {
         this.value = value;
         this.lower = lower;
         this.inclusive = inclusive;
