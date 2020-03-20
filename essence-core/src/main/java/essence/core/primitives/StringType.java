@@ -53,19 +53,19 @@ public class StringType implements DataType<String> {
         return new StringType(minSize, maxSize, characterType, true);
     }
 
-    public DataType<String> of(DataType<Character> characterType) {
+    public StringType of(DataType<Character> characterType) {
         return of(minSize, maxSize, characterType);
     }
 
-    public DataType<String> ofMin(int minSize, DataType<Character> characterType) {
+    public StringType ofMin(int minSize, DataType<Character> characterType) {
         return of(minSize, maxSize, characterType);
     }
 
-    public DataType<String> ofMax(int maxSize, DataType<Character> characterType) {
+    public StringType ofMax(int maxSize, DataType<Character> characterType) {
         return of(minSize, maxSize, characterType);
     }
 
-    public DataType<String> of(int minSize, int maxSize, DataType<Character> characterType) {
+    public StringType of(int minSize, int maxSize, DataType<Character> characterType) {
         return new StringType(minSize, maxSize, characterType, cropper, extender);
     }
 

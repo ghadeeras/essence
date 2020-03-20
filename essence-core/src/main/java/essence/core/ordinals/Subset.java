@@ -15,11 +15,11 @@ public class Subset<T> {
     private final List<Limit<T>> limits;
 
     @SafeVarargs
-    public Subset(Limit<T>... limits) {
+    Subset(Limit<T>... limits) {
         this(Stream.of(limits).collect(toList()));
     }
 
-    public Subset(List<Limit<T>> limits) {
+    Subset(List<Limit<T>> limits) {
         this.limits = limits;
     }
 
