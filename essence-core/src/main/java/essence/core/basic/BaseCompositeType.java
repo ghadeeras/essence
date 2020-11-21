@@ -13,8 +13,8 @@ import static essence.core.utils.StreamUtils.reduce;
 
 public class BaseCompositeType<T> implements DataType<T> {
 
-    protected final Supplier<T> constructor;
-    protected final List<Member<T, ?, ?>> definedMembers = new ArrayList<>();
+    private final Supplier<T> constructor;
+    private final List<Member<T, ?, ?>> definedMembers = new ArrayList<>();
 
     private final LazyValue<List<Member<T, ?, ?>>> members = LazyValue.from(
             () -> Collections.unmodifiableList(definedMembers)
@@ -29,7 +29,7 @@ public class BaseCompositeType<T> implements DataType<T> {
         return child;
     }
 
-    public List<Member<T, ?, ?>> getMembers() {
+    public List<Member<T, ?, ?>> members() {
         return members.get();
     }
 
@@ -44,12 +44,12 @@ public class BaseCompositeType<T> implements DataType<T> {
 
     @Override
     public T randomValue(RandomGenerator generator) {
-        return reduce(getMembers().stream(), identity(), (p, m) -> m.randomize(p, generator));
+        return reduce(members().stream(), identity(), (p, m) -> m.randomize(p, generator));
     }
 
     @Override
-    public T closestTo(T value, ValidationReporter reporter) {
-        return reduce(getMembers().stream(), value, (p, m) -> m.closestTo(p, reporter));
+    public void validate(T value, ValidationReporter reporter) {
+        members().forEach(m -> m.validate(value, reporter));
     }
 
     @SafeVarargs

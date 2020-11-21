@@ -17,8 +17,7 @@ public class BooleanType implements DataType<Boolean> {
     }
 
     @Override
-    public Boolean closestTo(Boolean value, ValidationReporter reporter) {
-        return value;
+    public void validate(Boolean value, ValidationReporter reporter) {
     }
 
 }

@@ -5,10 +5,7 @@ import essence.core.random.RandomGenerator;
 import essence.core.validation.SimpleValidationIssue;
 import essence.core.validation.ValidationReporter;
 
-import java.util.function.BiFunction;
-import java.util.function.BinaryOperator;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 import static essence.core.primitives.Primitives.character;
 import static java.lang.Integer.MAX_VALUE;
@@ -22,35 +19,16 @@ public class StringType implements DataType<String> {
     private final int maxSize;
     private final int maxRandomSize;
     private final DataType<Character> characterType;
-    private final BiFunction<String, Integer, String> cropper;
-    private final BinaryOperator<String> extender;
 
-    private StringType(int minSize, int maxSize, DataType<Character> characterType, BiFunction<String, Integer, String> cropper, BinaryOperator<String> extender) {
+    private StringType(int minSize, int maxSize, DataType<Character> characterType) {
         this.minSize = minSize;
         this.maxSize = maxSize;
         this.maxRandomSize = min(maxSize, minSize + MAX_VARIATION);
         this.characterType = characterType;
-        this.cropper = cropper;
-        this.extender = extender;
-    }
-
-    private StringType(int minSize, int maxSize, DataType<Character> characterType, boolean leftSided) {
-        this(minSize, maxSize, characterType,
-            leftSided ? (string, size) -> string.substring(0, size) : (string, size) -> string.substring(string.length() - size),
-            leftSided ? (string, ext) -> string + ext : (string, ext) -> ext + string
-        );
     }
 
     public StringType() {
-        this(0, MAX_VALUE, character, true);
-    }
-
-    public StringType rightSided() {
-        return new StringType(minSize, maxSize, characterType, false);
-    }
-
-    public StringType leftSided() {
-        return new StringType(minSize, maxSize, characterType, true);
+        this(0, MAX_VALUE, character);
     }
 
     public StringType of(DataType<Character> characterType) {
@@ -66,7 +44,7 @@ public class StringType implements DataType<String> {
     }
 
     public StringType of(int minSize, int maxSize, DataType<Character> characterType) {
-        return new StringType(minSize, maxSize, characterType, cropper, extender);
+        return new StringType(minSize, maxSize, characterType);
     }
 
     @Override
@@ -81,24 +59,13 @@ public class StringType implements DataType<String> {
     }
 
     @Override
-    public String closestTo(String value, ValidationReporter reporter) {
-        String valueWithValidChars = from(value.chars()
-            .mapToObj(c -> (char) c)
-            .map(c -> characterType.closestTo(c, reporter)));
-        String validValue = valueWithValidChars;
-        if (valueWithValidChars.length() < minSize) {
+    public void validate(String value, ValidationReporter reporter) {
+        value.chars().forEach(c -> characterType.validate((char) c, reporter));
+        if (value.length() < minSize) {
             reporter.report(new TooShortString(this, value));
-            validValue = extender.apply(valueWithValidChars, from(Stream.generate(characterType::closestToIdentity)
-                .limit(minSize - valueWithValidChars.length())));
-        } else if (valueWithValidChars.length() > maxSize) {
+        } else if (value.length() > maxSize) {
             reporter.report(new TooLongString(this, value));
-            validValue = cropper.apply(valueWithValidChars, maxSize);
         }
-        return validValue;
-    }
-
-    private static String from(Stream<Character> characters) {
-        return characters.collect(StringBuilder::new, (b, c) -> b.append(c.charValue()), StringBuilder::append).toString();
     }
 
     public int getMinSize() {
@@ -109,7 +76,7 @@ public class StringType implements DataType<String> {
         return maxSize;
     }
 
-    public DataType<Character> getCharacterType() {
+    public DataType<Character> characterType() {
         return characterType;
     }
 

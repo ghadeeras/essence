@@ -18,14 +18,17 @@ public class Enumerables {
         return oneOf(values, Comparator.comparingInt(values::indexOf));
     }
 
+    @SafeVarargs
     public static <T> OneOf<T> oneOf(Comparator<T> comparator, T... values) {
         return oneOf(Arrays.asList(values), comparator);
     }
 
+    @SafeVarargs
     public static <T> OneOf<T> oneOf(T... values) {
         return oneOf(Arrays.asList(values));
     }
 
+    @SafeVarargs
     public static <T extends Comparable<T>> OneOf<T> enumeration(T... values) {
         return oneOf(Arrays.asList(values), Comparator.naturalOrder());
     }

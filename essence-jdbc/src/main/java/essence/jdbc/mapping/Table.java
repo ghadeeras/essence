@@ -85,7 +85,7 @@ public class Table<T> {
         C accessedBy(Function<T, V> getter, BiFunction<T, V, T> setter);
 
         default C mapsTo(UniqueMember<T, V> member) {
-            return accessedBy(member.getGetter(), member.getSetter());
+            return accessedBy(member.getter(), member.setter());
         }
 
     }

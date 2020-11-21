@@ -14,33 +14,34 @@ public class ConstrainedType<T> extends BaseCompositeType<T> {
 
         @Override
         public Void visit(UniqueMember<T, TChild> member) {
-            member(member, member.getType(), member.getMinMultiplicity() > 0).accept(ConstrainedType.this);
+            member(member, member.type(), member.minMultiplicity() > 0).accept(ConstrainedType.this);
             return null;
         }
 
         @Override
         public Void visit(SetMember<T, TChild> member) {
-            member(member, member.getType(), member.getMinMultiplicity(), member.getMaxMultiplicity()).accept(ConstrainedType.this);
+            member(member, member.type(), member.minMultiplicity(), member.maxMultiplicity()).accept(ConstrainedType.this);
             return null;
         }
 
         @Override
         public Void visit(ListMember<T, TChild> member) {
-            member(member, member.getType(), member.getMinMultiplicity(), member.getMaxMultiplicity()).accept(ConstrainedType.this);
+            member(member, member.type(), member.minMultiplicity(), member.maxMultiplicity()).accept(ConstrainedType.this);
             return null;
         }
 
     }
 
-    private BaseCompositeType<T> baseCompositeType;
+    private final BaseCompositeType<T> baseCompositeType;
 
+    @SafeVarargs
     public ConstrainedType(BaseCompositeType<T> baseType, MemberDefiner<T>... definers) {
-        super(baseType.constructor);
+        super(baseType::construct);
         this.baseCompositeType = baseType;
         Stream.of(definers).forEach(definer -> definer.accept(this));
-        Set<String> overridden = definedMembers.stream().map(Member::getName).collect(toSet());
-        baseType.getMembers().stream()
-            .filter(member -> !overridden.contains(member.getName()))
+        Set<String> overridden = members().stream().map(Member::name).collect(toSet());
+        baseType.members().stream()
+            .filter(member -> !overridden.contains(member.name()))
             .forEach(this::redefine);
     }
 
@@ -55,37 +56,37 @@ public class ConstrainedType<T> extends BaseCompositeType<T> {
     }
 
     private static <T, TChild> MemberDefiner<T> member(UniqueMember<T, TChild> member, DataType<TChild> type, boolean mandatory) {
-        return constrainedType -> constrainedType.define(new UniqueMember<T, TChild>(
-            m -> member.getName(),
+        return constrainedType -> constrainedType.define(new UniqueMember<>(
+            m -> member.name(),
             type,
             constrainedType,
             mandatory,
-            member.getGetter(),
-            member.getSetter()
+            member.getter(),
+            member.setter()
         ));
     }
 
     private static <T, TChild> MemberDefiner<T> member(SetMember<T, TChild> member, DataType<TChild> type, int minMultiplicity, int maxMultiplicitty) {
-        return constrainedType -> constrainedType.define(new SetMember<T, TChild>(
-            m -> member.getName(),
+        return constrainedType -> constrainedType.define(new SetMember<>(
+            m -> member.name(),
             type,
             constrainedType,
             minMultiplicity,
             maxMultiplicitty,
-            member.getGetter(),
-            member.getSetter()
+            member.getter(),
+            member.setter()
         ));
     }
 
     private static <T, TChild> MemberDefiner<T> member(ListMember<T, TChild> member, DataType<TChild> type, int minMultiplicity, int maxMultiplicitty) {
-        return constrainedType -> constrainedType.define(new ListMember<T, TChild>(
-            m -> member.getName(),
+        return constrainedType -> constrainedType.define(new ListMember<>(
+            m -> member.name(),
             type,
             constrainedType,
             minMultiplicity,
             maxMultiplicitty,
-            member.getGetter(),
-            member.getSetter()
+            member.getter(),
+            member.setter()
         ));
     }
 
@@ -98,7 +99,7 @@ public class ConstrainedType<T> extends BaseCompositeType<T> {
         }
 
         public MemberDefiner<T> as(DataType<TChild> type) {
-            return member(member, type, member.getMinMultiplicity() > 0);
+            return member(member, type, member.minMultiplicity() > 0);
         }
 
         public MemberDefiner<T> asMandatory(DataType<TChild> type) {
@@ -130,7 +131,7 @@ public class ConstrainedType<T> extends BaseCompositeType<T> {
         }
 
         public MemberDefiner<T> as(DataType<TChild> type) {
-            return member(member, type, member.getMinMultiplicity(), member.getMaxMultiplicity());
+            return member(member, type, member.minMultiplicity(), member.maxMultiplicity());
         }
 
         public To<T, TChild> as(int minMultiplicity) {
@@ -148,7 +149,7 @@ public class ConstrainedType<T> extends BaseCompositeType<T> {
         }
 
         public MemberDefiner<T> as(DataType<TChild> type) {
-            return member(member, type, member.getMinMultiplicity(), member.getMaxMultiplicity());
+            return member(member, type, member.minMultiplicity(), member.maxMultiplicity());
         }
 
         public To<T, TChild> as(int minMultiplicity) {

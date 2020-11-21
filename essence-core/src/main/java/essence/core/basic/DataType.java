@@ -3,10 +3,10 @@ package essence.core.basic;
 import essence.core.random.RandomGeneration;
 import essence.core.random.RandomGenerator;
 import essence.core.validation.ValidationReporter;
-
-import java.util.Objects;
+import essence.core.validation.ValidationReporterWrapper;
 
 import static essence.core.validation.ValidationReporters.silent;
+import static essence.core.validation.ValidationReporters.wrap;
 
 public interface DataType<T> {
 
@@ -14,22 +14,16 @@ public interface DataType<T> {
 
     T randomValue(RandomGenerator generator);
 
-    T closestTo(T value, ValidationReporter reporter);
+    void validate(T value, ValidationReporter reporter);
+
+    default boolean isValid(T value, ValidationReporter reporter) {
+        ValidationReporterWrapper wrapper = wrap(reporter);
+        validate(value, wrapper);
+        return wrapper.isValid();
+    }
 
     default T randomValue() {
         return randomValue(RandomGeneration.generator());
-    }
-
-    default T closestTo(T value) {
-        return closestTo(value, silent);
-    }
-
-    default T closestToIdentity() {
-        return closestTo(identity());
-    }
-
-    default boolean isValid(T value, ValidationReporter reporter) {
-        return Objects.equals(value, closestTo(value, reporter));
     }
 
     default boolean isValid(T value) {

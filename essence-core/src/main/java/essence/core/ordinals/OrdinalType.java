@@ -9,9 +9,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.BinaryOperator;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 import static java.util.Collections.singletonList;
 
@@ -22,10 +20,6 @@ public abstract class OrdinalType<T, D extends Comparable<D>> implements DataTyp
 
     protected OrdinalType(Subset<T> subset) {
         this.subset = subset;
-    }
-
-    private Subset<T> subset() {
-        return subset;
     }
 
     private List<Range> ranges() {
@@ -46,19 +40,10 @@ public abstract class OrdinalType<T, D extends Comparable<D>> implements DataTyp
     }
 
     @Override
-    public T closestTo(T value, ValidationReporter reporter) {
-        return ranges().stream().anyMatch(range -> range.contains(value)) ?
-            value :
-            ranges().stream().flatMap(Range::stream)
-                .reduce(closerTo(value)).orElse(null);
-    }
-
-    protected BinaryOperator<T> closerTo(T value) {
-        return (v1, v2) -> {
-            D d1 = distance(v1, value);
-            D d2 = distance(v2, value);
-            return d1.compareTo(d2) < 0 ? v1 : v2;
-        };
+    public void validate(T value, ValidationReporter reporter) {
+        if (ranges().stream().noneMatch(range -> range.contains(value))) {
+            reporter.report(this, value, () -> value + " is not in " + subset);
+        }
     }
 
     @SafeVarargs
@@ -128,10 +113,6 @@ public abstract class OrdinalType<T, D extends Comparable<D>> implements DataTyp
         private Range(T min, T max) {
             this.min = min;
             this.max = max;
-        }
-
-        Stream<T> stream() {
-            return Stream.of(min, max);
         }
 
         boolean contains(T value) {

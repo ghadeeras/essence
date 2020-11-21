@@ -1,6 +1,7 @@
 package essence.core.basic;
 
 import essence.core.utils.BasicCollector;
+import essence.core.utils.Reference;
 
 import java.util.Objects;
 import java.util.function.BiFunction;
@@ -9,20 +10,6 @@ import java.util.stream.Collector;
 import java.util.stream.Stream;
 
 public class UniqueMember<TParent, T> extends Member<TParent, T, T> {
-
-    private static class Reference<T> {
-
-        private T value = null;
-
-        public T get() {
-            return value;
-        }
-
-        public void set(T value) {
-            this.value = value;
-        }
-
-    }
 
     private final Collector<T, Reference<T>, T> collector = BasicCollector.collector(
         Reference::new,

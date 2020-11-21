@@ -4,9 +4,10 @@ import essence.core.random.RandomGenerator;
 import essence.core.validation.SimpleValidationIssue;
 import essence.core.validation.ValidationReporter;
 
-import java.util.*;
-
-import static essence.core.utils.ProximityUtils.inOrderedValues;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public interface EnumerableType<T> extends DataType<T> {
 
@@ -36,12 +37,15 @@ public interface EnumerableType<T> extends DataType<T> {
     }
 
     @Override
-    default T closestTo(T value, ValidationReporter reporter) {
-        T result = inOrderedValues(orderedValues(), comparator()).findClosestTo(value);
-        if (!Objects.equals(value, result)) {
+    default void validate(T value, ValidationReporter reporter) {
+        int comparison = orderedValues().stream()
+            .mapToInt(v -> comparator().compare(v, value))
+            .filter(i -> i >= 0)
+            .findFirst()
+            .orElse(1);
+        if (comparison != 0) {
             reporter.report(new InvalidEnumerationValue<>(this, value));
         }
-        return result;
     }
 
 }

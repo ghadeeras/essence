@@ -10,7 +10,7 @@ import java.util.List;
 import static essence.core.enumerables.Enumerables.enumeration;
 import static essence.core.enumerables.Enumerables.oneOf;
 import static essence.core.primitives.Primitives.*;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static java.util.Comparator.naturalOrder;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.junit.Assert.assertThat;
@@ -20,10 +20,6 @@ public class DataTypes {
     public static <T> void testDataType(DataType<T> dataType) {
         T value = dataType.randomValue();
         assertThat(dataType.isValid(value), is(true));
-        assertThat(dataType.closestTo(value), equalTo(value));
-        
-        assertThat(dataType.isValid(dataType.closestToIdentity()), is(true));
-        assertThat(dataType.closestToIdentity(), equalTo(dataType.closestTo(dataType.identity())));
     }
     
     @Test
@@ -54,18 +50,12 @@ public class DataTypes {
         
     }
 
-    static OneOf<Integer> fibonacci = oneOf(1, 2, 3, 5, 8, 13, 21).orderedBy((i1, i2) -> i1 - i2);
+    static OneOf<Integer> fibonacci = oneOf(1, 2, 3, 5, 8, 13, 21).orderedBy(naturalOrder());
 
     @Test
-    public void enumerables() {
+    public void test_enumerable_types() {
         testEnumerableDataType(SimpleColor.type);
         testEnumerableDataType(fibonacci);
-
-        assertThat(fibonacci.closestTo(10), equalTo(8));
-        assertThat(fibonacci.closestTo(11), equalTo(13));
-        assertThat(fibonacci.closestTo(5), equalTo(5));
-        assertThat(fibonacci.closestTo(0), equalTo(1));
-        assertThat(fibonacci.closestTo(34), equalTo(21));
     }
 
 }

@@ -38,21 +38,21 @@ public class JsonSchemaBuilder {
     }
 
     public static <T> JsonObject<T> schemaFor(BaseCompositeType<T> compositeType) {
-        Collection<JsonObject.Field<T, ?>> fields = compositeType.getMembers().stream().map(member ->
-            member.getMaxMultiplicity() == 1 ? fieldFor(member) : arrayFieldFor(member)
+        Collection<JsonObject.Field<T, ?>> fields = compositeType.members().stream().map(member ->
+            member.maxMultiplicity() == 1 ? fieldFor(member) : arrayFieldFor(member)
         ).collect(toList());
         return object(compositeType::construct, fields);
     }
 
     private static <T, C, V> JsonObject.Field<T, V> fieldFor(Member<T, C, V> member) {
-        return field(member.getName(), jsonTypeFor(member.getType())).accessedBy(
+        return field(member.name(), jsonTypeFor(member.type())).accessedBy(
             (T o) -> member.stream(member.of(o)).findFirst().orElse(null),
             (T o, V v) -> member.update(o, Stream.of(v).collect(member.collector()))
         );
     }
 
     private static <T, C, V> JsonObject.Field<T, List<V>> arrayFieldFor(Member<T, C, V> member) {
-        return field(member.getName(), arrayOf(jsonTypeFor(member.getType()))).accessedBy(
+        return field(member.name(), arrayOf(jsonTypeFor(member.type()))).accessedBy(
             (T o) -> {
                 C collection = member.of(o);
                 return collection != null ? member.stream(collection).collect(toList()) : null;

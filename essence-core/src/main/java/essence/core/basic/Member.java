@@ -14,10 +14,8 @@ import java.util.stream.Collector;
 import java.util.stream.Stream;
 
 import static essence.core.random.RandomGeneration.generator;
-import static java.lang.Integer.max;
 import static java.lang.Integer.min;
 import static java.util.stream.Collectors.*;
-import static java.util.stream.IntStream.range;
 
 public abstract class Member<TParent, TContainer, T> {
 
@@ -89,44 +87,55 @@ public abstract class Member<TParent, TContainer, T> {
         return update(parent, value);
     }
 
-    public TParent closestTo(TParent parent, ValidationReporter reporter) {
-        TContainer oldValue = of(parent);
-
-        int size = size(oldValue);
-        Stream<T> limitedToMaxMultiplicity =
-                stream(oldValue).limit(min(size, maxMultiplicity)).map(v -> type.closestTo(v, reporter));
-        Stream<T> neededToMinMultiplicity =
-                range(0, max(size, minMultiplicity) - size).mapToObj(i -> type.closestToIdentity());
-
-        TContainer newValue = Stream.concat(limitedToMaxMultiplicity, neededToMinMultiplicity).collect(collector());
-        return update(parent, newValue);
+    public void validate(TParent parent, ValidationReporter reporter) {
+        TContainer value = of(parent);
+        int size = size(value);
+        if (size < minMultiplicity) {
+            reporter.report(parentType, parent, () ->
+                "Expected at least " + minMultiplicity +
+                " items in " + name() +
+                " attribute of " + parentType.name() +
+                ", but found only " + size +
+                " items"
+            );
+        }
+        if (size > minMultiplicity) {
+            reporter.report(parentType, parent, () ->
+                "Expected at most " + maxMultiplicity +
+                " items in " + name() +
+                " attribute of " + parentType.name() +
+                ", but found " + size +
+                " items"
+            );
+        }
+        stream(value).forEach(v -> type.validate(v, reporter));
     }
 
-    public String getName() {
+    public String name() {
         return name.get();
     }
 
-    public DataType<T> getType() {
+    public DataType<T> type() {
         return type;
     }
 
-    public BaseCompositeType<TParent> getParentType() {
+    public BaseCompositeType<TParent> parentType() {
         return parentType;
     }
 
-    public Integer getMinMultiplicity() {
+    public Integer minMultiplicity() {
         return minMultiplicity;
     }
 
-    public Integer getMaxMultiplicity() {
+    public Integer maxMultiplicity() {
         return maxMultiplicity;
     }
 
-    public Function<TParent, TContainer> getGetter() {
+    public Function<TParent, TContainer> getter() {
         return getter;
     }
 
-    public BiFunction<TParent, TContainer, TParent> getSetter() {
+    public BiFunction<TParent, TContainer, TParent> setter() {
         return setter;
     }
 
