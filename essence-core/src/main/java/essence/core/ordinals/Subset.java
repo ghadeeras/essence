@@ -10,6 +10,7 @@ import static essence.core.utils.Equality.*;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
+@SuppressWarnings({ "rawtypes", "EqualsWhichDoesntCheckParameterClass" })
 public class Subset<T> {
 
     private final List<Limit<T>> limits;
@@ -37,11 +38,12 @@ public class Subset<T> {
         return Objects.hash(limits.toArray());
     }
 
-    private static Function<Subset, List<Limit>> limitsGetter = Subset::getLimits;
-    private static BiPredicate<Subset, Object> equality = predicate(Subset.class, equalFor(limitsGetter, inSameOrder()));
+    private static final Function<Subset, List<Limit>> limitsGetter = Subset::getLimits;
+    private static final BiPredicate<Subset, Object> equality = predicate(Subset.class, equalFor(limitsGetter, inSameOrder()));
 
     @Override
     public boolean equals(Object that) {
         return equality.test(this, that);
     }
+
 }

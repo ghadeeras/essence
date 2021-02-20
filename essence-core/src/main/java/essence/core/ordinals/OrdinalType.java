@@ -9,34 +9,173 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Function;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
+import static essence.core.ordinals.Limit.*;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 
-public abstract class OrdinalType<T, D extends Comparable<D>> implements DataType<T> {
+public abstract class OrdinalType<T, D extends Comparable<D>, O extends  OrdinalType<T, D, O>> implements DataType<T> {
 
-    private final Subset<T> subset;
-    private final LazyValue<List<Range>> ranges = LazyValue.from(this::inclusiveRanges);
+    final LazyValue<List<Range>> ranges = LazyValue.from(this::inclusiveRanges);
+
+    final Subset<T> subset;
+    final Subset<T> all;
+    final Subset<T> empty;
+    final Comparator<Limit<T>> limitComparator;
 
     protected OrdinalType(Subset<T> subset) {
-        this.subset = subset;
+        var minLimit = new Limit<>(safeMin(), true, true);
+        var maxLimit = new Limit<>(safeMax(), false, true);
+        this.subset = subset != null ? subset : new Subset<>(minLimit, maxLimit);
+        this.all = subset(minLimit, maxLimit);
+        this.empty = subset();
+        this.limitComparator = Limit.comparator(comparator());
     }
 
-    private List<Range> ranges() {
-        return ranges.get();
+    public O only(T value) {
+        return constraint(subset(fromIncluding(value), toIncluding(value)));
     }
 
-    protected Subset<T> subSet(SubsetConstructor<T> subsetConstructor) {
-        SubsetOperations<T> setOps = new SubsetOperations<>(this);
-        Subset<T> subset = subsetConstructor.apply(setOps);
-        return setOps.intersection(subset, this.subset);
+    public O except(T value) {
+        return constraint(subset(toExcluding(value), fromExcluding(value)));
+    }
+
+    public O in(T from, T to) {
+        return comparator().compare(from, to) <= 0 ?
+            in(fromIncluding(from), toExcluding(to)) :
+            in(fromExcluding(to), toIncluding(from));
+    }
+
+    public O in(Limit<T> from, Limit<T> to) {
+        return constraint(subset(from, to));
+    }
+
+    public O greaterThanOrEqualTo(T value) {
+        return constraint(subset(fromIncluding(value)));
+    }
+
+    public O greaterThan(T value) {
+        return constraint(subset(fromExcluding(value)));
+    }
+
+    public O lessThanOrEqualTo(T value) {
+        return constraint(subset(toIncluding(value)));
+    }
+
+    public O lessThan(T value) {
+        return constraint(subset(toExcluding(value)));
+    }
+
+    @SafeVarargs
+    public final O union(O... types) {
+        return create(union(subsets(types)));
+    }
+
+    @SafeVarargs
+    public final O intersect(O... types) {
+        return create(intersection(subsets(types)));
+    }
+
+    public final O complement() {
+        return create(complement(subset));
+    }
+
+    protected O constraint(Subset<T> subset) {
+        return intersect(create(subset));
+    }
+
+    protected abstract O create(Subset<T> subset);
+
+    private Subset<T> intersection(List<Subset<T>> subsets) {
+        var complements = subsets.stream().map(this::complement).collect(toList());
+        return complement(union(complements));
+    }
+
+    private Subset<T> union(List<Subset<T>> subsets) {
+        var nestingLevel = subsets.stream()
+            .filter(subset -> !subset.getLimits().isEmpty())
+            .filter(subset -> !subset.getLimits().get(0).isLower())
+            .count();
+
+        var limits = subsets.stream()
+            .map(Subset::getLimits)
+            .flatMap(List::stream)
+            .sorted(limitComparator)
+            .collect(toList());
+
+        var unionLimits = new LinkedList<Limit<T>>();
+        Consumer<Limit<T>> appender = limit -> {
+            if (!unionLimits.isEmpty() && unionLimits.getLast().equals(limit.complement())) {
+                unionLimits.removeLast();
+            } else {
+                unionLimits.add(limit);
+            }
+        };
+
+        for (var limit : limits) {
+            if (limit.isLower()) {
+                if (nestingLevel == 0) {
+                    appender.accept(limit);
+                }
+                nestingLevel++;
+            } else {
+                nestingLevel--;
+                if (nestingLevel == 0) {
+                    unionLimits.add(limit);
+                }
+            }
+        }
+
+        return unionLimits.size() > 0 || nestingLevel == 0 ? subset(unionLimits) : all;
+    }
+
+    private Subset<T> complement(Subset<T> subset) {
+        var limits = subset.getLimits().stream()
+            .map(Limit::complement)
+            .collect(toList());
+        return subset(limits);
+    }
+
+    @SafeVarargs
+    private List<Subset<T>> subsets(O... types) {
+        return Stream.concat(
+            Stream.of(this),
+            Stream.of(types)
+        ).map(t -> t.subset).collect(toList());
+    }
+
+    @SafeVarargs
+    private Subset<T> subset(Limit<T>... limits) {
+        return subset(Stream.of(limits).collect(toList()));
+    }
+
+    private Subset<T> subset(List<Limit<T>> limits) {
+        var filteredLimits = limits.stream()
+            .filter(includes(safeMin()).or(includes(safeMax())))
+            .collect(toList());
+        var result = new Subset<T>();
+        if (!filteredLimits.isEmpty()) {
+            filteredLimits.removeIf(includes(safeMin()).and(includes(safeMax())));
+            result = !filteredLimits.isEmpty() ? new Subset<>(filteredLimits) : all;
+        }
+        return result;
+    }
+
+    private Predicate<Limit<T>> includes(T value) {
+        return limit -> {
+            var c = comparator().compare(value, limit.getValue());
+            return (limit.isInclusive() ? c >= 0 : c > 0) ^ limit.isUpper();
+        };
     }
 
     @Override
     public T randomValue(RandomGenerator generator) {
-        int rangeIndex = generator.nextInt(0, ranges().size());
-        Range range = ranges().get(rangeIndex);
-        return add(range.min, randomDistance(generator, distance(range.min, range.max)));
+        var rangeIndex = generator.nextInt(0, ranges().size());
+        var range = ranges().get(rangeIndex);
+        return add(range.min, randomDistance(generator, distance(range.min, next(range.max))));
     }
 
     @Override
@@ -46,17 +185,20 @@ public abstract class OrdinalType<T, D extends Comparable<D>> implements DataTyp
         }
     }
 
-    @SafeVarargs
-    protected final boolean ordered(T... values) {
-        boolean ordered = true;
-        for (int i = 1; ordered && i < values.length; i++) {
-            ordered = comparator().compare(values[i - 1], values[i]) < 0;
-        }
-        return ordered;
+    private List<Range> ranges() {
+        return ranges.get();
+    }
+
+    private T safeMin() {
+        return next(min());
+    }
+
+    private T safeMax() {
+        return prev(max());
     }
 
     protected Comparator<T> comparator() {
-        return Comparator.comparing(o -> distance(min(), o));
+        return Comparator.comparing(o -> distance(safeMin(), o));
     }
 
     protected abstract T min();
@@ -78,11 +220,11 @@ public abstract class OrdinalType<T, D extends Comparable<D>> implements DataTyp
             new ArrayList<>(subset.getLimits().stream()
                 .map(this::toInclusive)
                 .reduce(new LinkedList<>(), this::addToRanges, OrdinalType::mergeLists)) :
-            singletonList(new Range(min(), max()));
+            singletonList(new Range(safeMin(), safeMax()));
     }
 
     private Limit<T> toInclusive(Limit<T> limit) {
-        T value = limit.getValue();
+        var value = limit.getValue();
         return limit.isExclusive() ?
             limit.isLower() ?
                 new Limit<>(next(value), true, true) :
@@ -92,9 +234,9 @@ public abstract class OrdinalType<T, D extends Comparable<D>> implements DataTyp
 
     private LinkedList<Range> addToRanges(LinkedList<Range> ranges, Limit<T> limit) {
         ranges.add(limit.isLower() ?
-            new Range(limit.getValue(), max()) :
+            new Range(limit.getValue(), safeMax()) :
             ranges.isEmpty() ?
-                new Range(min(), limit.getValue()) :
+                new Range(safeMin(), limit.getValue()) :
                 new Range(ranges.removeLast().min, limit.getValue())
         );
         return ranges;
@@ -116,11 +258,10 @@ public abstract class OrdinalType<T, D extends Comparable<D>> implements DataTyp
         }
 
         boolean contains(T value) {
-            return ordered(min, value, max);
+            var comparator = comparator();
+            return comparator.compare(min, value) <= 0 && comparator.compare(value, max) <= 0;
         }
 
     }
-
-    public interface SubsetConstructor<T> extends Function<SubsetOperations<T>, Subset<T>> {}
 
 }

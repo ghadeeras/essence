@@ -14,7 +14,7 @@ public class OneOf<T> implements EnumerableType<T> {
     private final List<T> values;
     private final Comparator<T> comparator;
 
-    public OneOf(Collection<T> values, Comparator<T> comparator) {
+    OneOf(Collection<T> values, Comparator<T> comparator) {
         this.values = new ArrayList<>(values);
         this.comparator = comparator;
         this.values.sort(comparator);

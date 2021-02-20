@@ -20,7 +20,7 @@ public interface Equality<T> {
     }
 
     static <T, A> Equality<T> equalFor(Function<T, ? extends A> getter, Equality<? super A> equality) {
-        return (thisValue, thatValue) -> equality.areEqual(getter.apply(thatValue), getter.apply(thatValue));
+        return (thisValue, thatValue) -> equality.areEqual(getter.apply(thisValue), getter.apply(thatValue));
     }
 
     @SafeVarargs

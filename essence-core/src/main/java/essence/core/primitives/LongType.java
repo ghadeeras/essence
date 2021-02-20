@@ -4,7 +4,7 @@ import essence.core.ordinals.OrdinalType;
 import essence.core.ordinals.Subset;
 import essence.core.random.RandomGenerator;
 
-public class LongType extends OrdinalType<Long, Long> {
+public class LongType extends OrdinalType<Long, Long, LongType> {
 
     LongType() {
         super(null);
@@ -14,8 +14,9 @@ public class LongType extends OrdinalType<Long, Long> {
         super(subset);
     }
 
-    public LongType subType(SubsetConstructor<Long> constructor) {
-        return new LongType(subSet(constructor));
+    @Override
+    protected LongType create(Subset<Long> subset) {
+        return new LongType(subset);
     }
 
     @Override

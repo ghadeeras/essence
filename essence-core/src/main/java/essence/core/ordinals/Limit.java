@@ -24,6 +24,22 @@ public class Limit<T> {
         this.order = integer(lower ^ inclusive, lower) ;
     }
 
+    public static <T> Limit<T> fromIncluding(T value) {
+        return new Limit<>(value, true, true);
+    }
+
+    public static <T> Limit<T> fromExcluding(T value) {
+        return new Limit<>(value, true, false);
+    }
+
+    public static <T> Limit<T> toIncluding(T value) {
+        return new Limit<>(value, false, true);
+    }
+
+    public static <T> Limit<T> toExcluding(T value) {
+        return new Limit<>(value, false, false);
+    }
+
     private static int integer(Boolean... bits) {
         return Stream.of(bits).reduce(0, (i, b) -> (i << 1) | (b ? 1 : 0), (i1, i2) -> i1 | i2);
     }

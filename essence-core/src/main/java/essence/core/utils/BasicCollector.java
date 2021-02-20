@@ -62,7 +62,7 @@ public class BasicCollector<T, A, R> implements Collector<T, A, R> {
     }
 
     public static <T, R> Collector<T, R, R> collector(Supplier<R> supplier, BiConsumer<R, T> accumulator) {
-        return collector(supplier, accumulator, (r1, r2) -> r2, identity());
+        return collector(supplier, accumulator, (r1, r2) -> r2);
     }
 
 }

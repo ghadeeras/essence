@@ -1,4 +1,4 @@
-rootProject.name = 'essence-all'
+rootProject.name = 'essence'
 include 'essence-core'
 include 'essence-json'
 include 'essence-examples'

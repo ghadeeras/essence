@@ -5,6 +5,8 @@ import essence.core.random.RandomGenerator;
 import essence.core.validation.ValidationReporter;
 import essence.core.validation.ValidationReporterWrapper;
 
+import java.util.Optional;
+
 import static essence.core.validation.ValidationReporters.silent;
 import static essence.core.validation.ValidationReporters.wrap;
 
@@ -24,6 +26,22 @@ public interface DataType<T> {
 
     default T randomValue() {
         return randomValue(RandomGeneration.generator());
+    }
+
+    default Optional<T> arbitraryValue(RandomGenerator generator) {
+        try {
+            return Optional.of(randomValue(generator));
+        } catch (AssertionError e) {
+            return Optional.empty();
+        }
+    }
+
+    default Optional<T> arbitraryValue() {
+        return arbitraryValue(RandomGeneration.generator());
+    }
+
+    default boolean isEmpty() {
+        return arbitraryValue().isEmpty();
     }
 
     default boolean isValid(T value) {

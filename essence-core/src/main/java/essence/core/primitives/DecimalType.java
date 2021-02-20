@@ -6,7 +6,7 @@ import essence.core.random.RandomGenerator;
 
 import java.math.BigDecimal;
 
-public class DecimalType extends OrdinalType<BigDecimal, BigDecimal> {
+public class DecimalType extends OrdinalType<BigDecimal, BigDecimal, DecimalType> {
 
     DecimalType() {
         super(null);
@@ -16,8 +16,9 @@ public class DecimalType extends OrdinalType<BigDecimal, BigDecimal> {
         super(subset);
     }
 
-    public DecimalType subType(SubsetConstructor<BigDecimal> constructor) {
-        return new DecimalType(subSet(constructor));
+    @Override
+    protected DecimalType create(Subset<BigDecimal> subset) {
+        return new DecimalType(subset);
     }
 
     @Override

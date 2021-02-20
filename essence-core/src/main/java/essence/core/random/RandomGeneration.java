@@ -11,10 +11,10 @@ public class RandomGeneration {
 
     public static final RandomGenerator defaultGenerator = new DefaultRandomGenerator();
 
-    private static ThreadLocal<RandomGenerator> current = withInitial(() -> defaultGenerator);
+    private static final ThreadLocal<RandomGenerator> current = withInitial(() -> defaultGenerator);
 
     public static <T> T using(RandomGenerator generator, Supplier<T> logic) {
-        RandomGenerator oldGenerator = generator();
+        var oldGenerator = generator();
         current.set(generator);
         try {
             return logic.get();

@@ -4,7 +4,7 @@ import essence.core.ordinals.OrdinalType;
 import essence.core.ordinals.Subset;
 import essence.core.random.RandomGenerator;
 
-public class CharacterType extends OrdinalType<Character, Integer> {
+public class CharacterType extends OrdinalType<Character, Integer, CharacterType> {
 
     CharacterType() {
         super(null);
@@ -14,8 +14,9 @@ public class CharacterType extends OrdinalType<Character, Integer> {
         super(subset);
     }
 
-    public CharacterType subType(SubsetConstructor<Character> constructor) {
-        return new CharacterType(subSet(constructor));
+    @Override
+    protected CharacterType create(Subset<Character> subset) {
+        return new CharacterType(subset);
     }
 
     @Override
