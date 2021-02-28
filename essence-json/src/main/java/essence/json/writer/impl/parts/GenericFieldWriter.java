@@ -3,8 +3,7 @@ package essence.json.writer.impl.parts;
 import essence.json.writer.ContextualFluentJsonWriter;
 import essence.json.writer.impl.BaseFluentJsonWriter;
 import essence.json.writer.impl.gen.FieldJsonGenerator;
-
-import javax.json.stream.JsonGenerator;
+import jakarta.json.stream.JsonGenerator;
 
 public class GenericFieldWriter<C> extends BaseFluentJsonWriter<ContextualFluentJsonWriter.ObjectWriter<C>> {
 

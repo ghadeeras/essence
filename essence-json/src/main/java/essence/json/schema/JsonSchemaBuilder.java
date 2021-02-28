@@ -20,16 +20,16 @@ public class JsonSchemaBuilder {
     @SuppressWarnings("unchecked")
     public static <T> JsonType<T> jsonTypeFor(DataType<T> dataType) {
         JsonType<T> result = null;
-        T value = dataType.identity();
-        if (value instanceof String) {
+        var type = dataType.javaType();
+        if (type.isAssignableFrom(String.class)) {
             result = (JsonType<T>) string();
-        } else if (value instanceof BigDecimal) {
+        } else if (type.isAssignableFrom(BigDecimal.class)) {
             result = (JsonType<T>) decimal();
-        } else if (value instanceof Long) {
+        } else if (type.isAssignableFrom(Long.class)) {
             result = (JsonType<T>) longInteger();
-        } else if (value instanceof Integer) {
+        } else if (type.isAssignableFrom(Integer.class)) {
             result = (JsonType<T>) integer();
-        } else if (value instanceof Boolean) {
+        } else if (type.isAssignableFrom(Boolean.class)) {
             result = (JsonType<T>) bool();
         } else if (dataType instanceof BaseCompositeType) {
             result = schemaFor((BaseCompositeType<T>) dataType);
@@ -54,7 +54,7 @@ public class JsonSchemaBuilder {
     private static <T, C, V> JsonObject.Field<T, List<V>> arrayFieldFor(Member<T, C, V> member) {
         return field(member.name(), arrayOf(jsonTypeFor(member.type()))).accessedBy(
             (T o) -> {
-                C collection = member.of(o);
+                var collection = member.of(o);
                 return collection != null ? member.stream(collection).collect(toList()) : null;
             },
             (T o, List<V> v) -> member.update(o, v != null ? v.stream().collect(member.collector()) : null)

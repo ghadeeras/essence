@@ -13,11 +13,34 @@ public class OneOf<T> implements EnumerableType<T> {
 
     private final List<T> values;
     private final Comparator<T> comparator;
+    private final Class<T> type;
 
+    @SuppressWarnings("unchecked")
     OneOf(Collection<T> values, Comparator<T> comparator) {
         this.values = new ArrayList<>(values);
         this.comparator = comparator;
         this.values.sort(comparator);
+        this.type = (Class<T>) values.stream()
+            .map(OneOf::typeOf)
+            .reduce(OneOf::commonAncestor)
+            .orElse(Object.class);
+    }
+
+    private static <T> Class<?> typeOf(T value) {
+        return value.getClass();
+    }
+
+    private static <T> Class<?> commonAncestor(Class<?> c1, Class<?> c2) {
+        return c1.isAssignableFrom(c2) ?
+            c1 :
+            c2.isAssignableFrom(c1) ?
+                c2 :
+                commonAncestor(c2, c1.getSuperclass());
+    }
+
+    @Override
+    public Class<T> javaType() {
+        return type;
     }
 
     @Override
@@ -28,11 +51,6 @@ public class OneOf<T> implements EnumerableType<T> {
     @Override
     public List<T> orderedValues() {
         return values;
-    }
-
-    @Override
-    public T identity() {
-        return values.stream().findFirst().orElse(null);
     }
 
     public OneOf<T> orderedBy(Comparator<T> comparator) {

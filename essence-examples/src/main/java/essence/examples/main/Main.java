@@ -13,14 +13,14 @@ public class Main {
     public static final JsonType<Account> accountJson = jsonTypeFor(Account.type);
 
     public static void main(String[] args) {
-        Account account = accountPrototype();
+        var account = accountPrototype();
 
         System.out.println(SchemaBasedJsonWriter.asString(accountJson, account));
         System.out.println(SchemaBasedJsonWriter.asString(accountJson, new Account()));
     }
 
     public static Account accountPrototype() {
-        String json = FluentJsonWriter.json(writer -> writer
+        var json = FluentJsonWriter.json(writer -> writer
             .object()
                 .in("accountNumber").value("1234567890")
                 .in("balance").value(70000)

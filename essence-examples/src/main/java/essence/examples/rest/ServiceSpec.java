@@ -11,10 +11,6 @@ import static essence.json.JsonFormat.jsonFormat;
 
 public class ServiceSpec {
 
-    public static final EndpointDefinition<Account, Account> createAccountEndPoint = EndpointDefinition
-        .expects(Account.type).in(jsonFormat)
-        .andReturns(Account.type).in(jsonFormat);
-
     public static final EndpointDefinition<Account, Account> saveAccountEndPoint = EndpointDefinition
         .expects(Account.type).in(jsonFormat)
         .andReturns(Account.type).in(jsonFormat);
@@ -45,7 +41,7 @@ public class ServiceSpec {
     }
 
     public static <T> PrimitiveValue<T> wrap(T value) {
-        PrimitiveValue<T> result = new PrimitiveValue<>();
+        var result = new PrimitiveValue<T>();
         result.value = value;
         return result;
     }

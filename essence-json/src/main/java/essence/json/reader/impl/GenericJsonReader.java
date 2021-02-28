@@ -3,16 +3,16 @@ package essence.json.reader.impl;
 import essence.json.reader.SchemaBasedJsonReader;
 import essence.json.reader.UnexpectedJsonTokenException;
 import essence.json.schema.*;
+import jakarta.json.Json;
+import jakarta.json.stream.JsonParser;
 
-import javax.json.Json;
-import javax.json.stream.JsonParser;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import static javax.json.stream.JsonParser.Event;
-import static javax.json.stream.JsonParser.Event.*;
+import static jakarta.json.stream.JsonParser.Event;
+import static jakarta.json.stream.JsonParser.Event.*;
 
 public class GenericJsonReader implements SchemaBasedJsonReader, JsonParsing {
 
@@ -78,7 +78,7 @@ public class GenericJsonReader implements SchemaBasedJsonReader, JsonParsing {
 
     @Override
     public Boolean recognize(JsonBoolean jsonBoolean) {
-        boolean result = found(VALUE_TRUE);
+        var result = found(VALUE_TRUE);
         if (!result) {
             expect(VALUE_FALSE);
         }
@@ -105,8 +105,8 @@ public class GenericJsonReader implements SchemaBasedJsonReader, JsonParsing {
         result = jsonObject.getConstructor().get();
         lookAhead();
         while (found(KEY_NAME)) {
-            String key = parser.getString();
-            JsonObject.Field<T, ?> field = getExpectedField(jsonObject, key);
+            var key = parser.getString();
+            var field = getExpectedField(jsonObject, key);
             result = read(field, result);
             lookAhead();
         }
@@ -115,7 +115,7 @@ public class GenericJsonReader implements SchemaBasedJsonReader, JsonParsing {
     }
 
     private <T> JsonObject.Field<T, ?> getExpectedField(JsonObject<T> jsonObject, String key) {
-        JsonObject.Field<T, ?> field = jsonObject.getField(key);
+        var field = jsonObject.getField(key);
         if (field == null) {
             throw new UnexpectedJsonTokenException();
         }

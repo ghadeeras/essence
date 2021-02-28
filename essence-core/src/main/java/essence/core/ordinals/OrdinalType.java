@@ -5,10 +5,7 @@ import essence.core.random.RandomGenerator;
 import essence.core.utils.LazyValue;
 import essence.core.validation.ValidationReporter;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -171,11 +168,20 @@ public abstract class OrdinalType<T, D extends Comparable<D>, O extends  Ordinal
         };
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public T randomValue(RandomGenerator generator) {
-        var rangeIndex = generator.nextInt(0, ranges().size());
-        var range = ranges().get(rangeIndex);
-        return add(range.min, randomDistance(generator, distance(range.min, next(range.max))));
+    public Class<T> javaType() {
+        return (Class<T>) min().getClass();
+    }
+
+    @Override
+    public Optional<T> arbitraryValue(RandomGenerator generator) {
+        return generator.nextInt(0, ranges().size())
+            .map(rangeIndex -> ranges().get(rangeIndex))
+            .flatMap(range -> {
+                var rangeWidth = distance(range.min, next(range.max));
+                return randomDistance(generator, rangeWidth).map(distance -> add(range.min, distance));
+            });
     }
 
     @Override
@@ -211,7 +217,7 @@ public abstract class OrdinalType<T, D extends Comparable<D>, O extends  Ordinal
 
     protected abstract T add(T value, D distance);
 
-    protected abstract D randomDistance(RandomGenerator generator, D range);
+    protected abstract Optional<D> randomDistance(RandomGenerator generator, D range);
 
     protected abstract D distance(T value1, T value2);
 

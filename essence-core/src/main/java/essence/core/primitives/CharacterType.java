@@ -4,6 +4,8 @@ import essence.core.ordinals.OrdinalType;
 import essence.core.ordinals.Subset;
 import essence.core.random.RandomGenerator;
 
+import java.util.Optional;
+
 public class CharacterType extends OrdinalType<Character, Integer, CharacterType> {
 
     CharacterType() {
@@ -17,11 +19,6 @@ public class CharacterType extends OrdinalType<Character, Integer, CharacterType
     @Override
     protected CharacterType create(Subset<Character> subset) {
         return new CharacterType(subset);
-    }
-
-    @Override
-    public Character identity() {
-        return ' ';
     }
 
     @Override
@@ -50,7 +47,7 @@ public class CharacterType extends OrdinalType<Character, Integer, CharacterType
     }
 
     @Override
-    protected Integer randomDistance(RandomGenerator generator, Integer range) {
+    protected Optional<Integer> randomDistance(RandomGenerator generator, Integer range) {
         return generator.nextInt(0, range);
     }
 

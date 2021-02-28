@@ -4,6 +4,8 @@ import essence.core.ordinals.OrdinalType;
 import essence.core.ordinals.Subset;
 import essence.core.random.RandomGenerator;
 
+import java.util.Optional;
+
 public class IntegerType extends OrdinalType<Integer, Long, IntegerType> {
 
     IntegerType() {
@@ -17,11 +19,6 @@ public class IntegerType extends OrdinalType<Integer, Long, IntegerType> {
     @Override
     protected IntegerType create(Subset<Integer> subset) {
         return new IntegerType(subset);
-    }
-
-    @Override
-    public Integer identity() {
-        return 0;
     }
 
     @Override
@@ -50,7 +47,7 @@ public class IntegerType extends OrdinalType<Integer, Long, IntegerType> {
     }
 
     @Override
-    protected Long randomDistance(RandomGenerator generator, Long range) {
+    protected Optional<Long> randomDistance(RandomGenerator generator, Long range) {
         return generator.nextLong(0, range);
     }
 

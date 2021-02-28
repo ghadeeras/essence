@@ -3,10 +3,11 @@ package essence.examples.rest.client;
 import essence.examples.model.Account;
 import essence.examples.rest.Service;
 
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
@@ -19,27 +20,34 @@ public class ServiceStub implements Service {
     private final Function<PrimitiveValue<Long>, PrimitiveValue<Boolean>> deleteAccountFunction;
     private final Function<PrimitiveValue<Long>, Account> findAccountFunction;
 
+    private final HttpClient client;
+
     public ServiceStub() {
         this.saveAccountFunction = profile(saveAccountEndPoint.client(sender("save")));
         this.deleteAccountFunction = profile(deleteAccountEndPoint.client(sender("delete")));
         this.findAccountFunction = profile(findAccountEndPoint.client(sender("find")));
+
+        this.client = HttpClient.newHttpClient();
     }
 
-    private static UnaryOperator<String> sender(String path) {
-        WebTarget webTarget = ClientBuilder.newClient()
-            .target("http://localhost:8080/service")
-            .path(path);
-        return json -> doSend(webTarget, json);
+    private UnaryOperator<String> sender(String path) {
+        return json -> doSend(path, json);
     }
 
-    private static String doSend(WebTarget webTarget, String json) {
+    private String doSend(String path, String json) {
         System.out.println("\nSending:\n" + json);
-        String result = webTarget
-            .request(MediaType.TEXT_PLAIN_TYPE)
-            .post(Entity.entity(json, MediaType.TEXT_PLAIN_TYPE))
-            .readEntity(String.class);
-        System.out.println("\nReceived:\n" + result);
-        return result;
+        var request = HttpRequest.newBuilder(URI.create("http://localhost:8080/service/" + path))
+            .header("Content-Type", "text/json")
+            .POST(HttpRequest.BodyPublishers.ofString(json))
+            .build();
+        try {
+            var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            var result = response.body();
+            System.out.println("\nReceived:\n" + result);
+            return result;
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

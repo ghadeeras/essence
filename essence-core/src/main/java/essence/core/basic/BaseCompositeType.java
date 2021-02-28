@@ -7,12 +7,14 @@ import essence.core.validation.ValidationReporter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import static essence.core.utils.StreamUtils.reduce;
 
 public class BaseCompositeType<T> implements DataType<T> {
 
+    private final Class<T> type;
     private final Supplier<T> constructor;
     private final List<Member<T, ?, ?>> definedMembers = new ArrayList<>();
 
@@ -22,6 +24,7 @@ public class BaseCompositeType<T> implements DataType<T> {
 
     public BaseCompositeType(Supplier<T> constructor) {
         this.constructor = constructor;
+        this.type = (Class<T>) constructor.get().getClass();
     }
 
     protected <C, D, M extends Member<T, C, D>> M define(M child) {
@@ -38,13 +41,13 @@ public class BaseCompositeType<T> implements DataType<T> {
     }
 
     @Override
-    public T identity() {
-        return construct();
+    public Class<T> javaType() {
+        return type;
     }
 
     @Override
-    public T randomValue(RandomGenerator generator) {
-        return reduce(members().stream(), identity(), (p, m) -> m.randomize(p, generator));
+    public Optional<T> arbitraryValue(RandomGenerator generator) {
+        return reduce(members().stream(), Optional.of(construct()), (parent, m) -> parent.flatMap(p -> m.randomize(p, generator)));
     }
 
     @Override

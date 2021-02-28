@@ -1,6 +1,7 @@
 package essence.json.writer.impl.gen;
 
-import javax.json.stream.JsonGenerator;
+import jakarta.json.stream.JsonGenerator;
+
 import java.math.BigDecimal;
 
 public interface OrthogonalJsonGenerator {

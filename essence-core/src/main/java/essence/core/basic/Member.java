@@ -8,6 +8,7 @@ import essence.core.validation.ValidationReporter;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collector;
@@ -77,19 +78,23 @@ public abstract class Member<TParent, TContainer, T> {
 
     public abstract int size(TContainer v);
 
-    public TParent randomize(TParent parent) {
+    public Optional<TParent> randomize(TParent parent) {
         return randomize(parent, generator());
     }
 
-    public TParent randomize(TParent parent, RandomGenerator generator) {
-        int size = generator.nextInt(minMultiplicity, maxRandomMultiplicity);
-        TContainer value = Stream.generate(() -> type.randomValue(generator)).limit(size).collect(collector());
-        return update(parent, value);
+    public Optional<TParent> randomize(TParent parent, RandomGenerator generator) {
+        return generator.nextInt(minMultiplicity, maxRandomMultiplicity).map(size -> {
+            var value = Stream.generate(() -> type.arbitraryValue(generator))
+                .flatMap(Optional::stream)
+                .limit(size)
+                .collect(collector());
+            return update(parent, value);
+        });
     }
 
     public void validate(TParent parent, ValidationReporter reporter) {
-        TContainer value = of(parent);
-        int size = size(value);
+        var value = of(parent);
+        var size = size(value);
         if (size < minMultiplicity) {
             reporter.report(parentType, parent, () ->
                 "Expected at least " + minMultiplicity +

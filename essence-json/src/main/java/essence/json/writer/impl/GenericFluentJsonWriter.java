@@ -2,12 +2,11 @@ package essence.json.writer.impl;
 
 import essence.json.writer.FluentJsonWriter;
 import essence.json.writer.impl.gen.RootJsonGenerator;
+import jakarta.json.Json;
+import jakarta.json.stream.JsonGenerator;
 
-import javax.json.Json;
-import javax.json.stream.JsonGenerator;
 import java.io.PrintWriter;
 import java.io.Writer;
-import java.util.HashMap;
 import java.util.Map;
 
 public class GenericFluentJsonWriter extends BaseFluentJsonWriter<FluentJsonWriter.Flusher> implements FluentJsonWriter {
@@ -17,8 +16,7 @@ public class GenericFluentJsonWriter extends BaseFluentJsonWriter<FluentJsonWrit
     }
 
     private static JsonGenerator generator(Writer writer) {
-        Map<String, Object> configs = new HashMap<>();
-        configs.put(JsonGenerator.PRETTY_PRINTING, true);
+        var configs = Map.of(JsonGenerator.PRETTY_PRINTING, true);
         return Json.createGeneratorFactory(configs).createGenerator(writer);
     }
 

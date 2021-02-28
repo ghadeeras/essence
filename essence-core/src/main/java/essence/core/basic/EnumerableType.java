@@ -4,10 +4,7 @@ import essence.core.random.RandomGenerator;
 import essence.core.validation.SimpleValidationIssue;
 import essence.core.validation.ValidationReporter;
 
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public interface EnumerableType<T> extends DataType<T> {
 
@@ -30,15 +27,14 @@ public interface EnumerableType<T> extends DataType<T> {
     }
 
     @Override
-    default T randomValue(RandomGenerator generator) {
-        List<T> values = orderedValues();
-        int index = generator.nextInt(0, values.size());
-        return values.get(index);
+    default Optional<T> arbitraryValue(RandomGenerator generator) {
+        var values = orderedValues();
+        return generator.nextInt(0, values.size()).map(values::get);
     }
 
     @Override
     default void validate(T value, ValidationReporter reporter) {
-        int comparison = orderedValues().stream()
+        var comparison = orderedValues().stream()
             .mapToInt(v -> comparator().compare(v, value))
             .filter(i -> i >= 0)
             .findFirst()

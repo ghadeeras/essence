@@ -5,6 +5,7 @@ import essence.core.random.RandomGenerator;
 import essence.core.validation.SimpleValidationIssue;
 import essence.core.validation.ValidationReporter;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import static essence.core.primitives.Primitives.character;
@@ -48,13 +49,13 @@ public class StringType implements DataType<String> {
     }
 
     @Override
-    public String identity() {
-        return "";
+    public Class<String> javaType() {
+        return String.class;
     }
 
     @Override
-    public String randomValue(RandomGenerator generator) {
-        Supplier<Character> characterSupplier = () -> characterType.randomValue(generator);
+    public Optional<String> arbitraryValue(RandomGenerator generator) {
+        Supplier<Optional<Character>> characterSupplier = () -> characterType.arbitraryValue(generator);
         return generator.nextString(minSize, maxRandomSize, characterSupplier);
     }
 

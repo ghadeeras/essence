@@ -5,6 +5,8 @@ import essence.core.ordinals.Subset;
 import essence.core.random.RandomGenerator;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Optional;
 
 public class DecimalType extends OrdinalType<BigDecimal, BigDecimal, DecimalType> {
 
@@ -22,28 +24,23 @@ public class DecimalType extends OrdinalType<BigDecimal, BigDecimal, DecimalType
     }
 
     @Override
-    public BigDecimal identity() {
-        return BigDecimal.ZERO;
-    }
-
-    @Override
     protected BigDecimal min() {
         return max().negate();
     }
 
     @Override
     protected BigDecimal max() {
-        return BigDecimal.valueOf(Double.MAX_VALUE);
+        return BigDecimal.TEN.pow(9);
     }
 
     @Override
     protected BigDecimal next(BigDecimal value) {
-        return BigDecimal.valueOf(Math.nextUp(value.doubleValue()));
+        return value.add(BigDecimal.valueOf(0.1).pow(9));
     }
 
     @Override
     protected BigDecimal prev(BigDecimal value) {
-        return BigDecimal.valueOf(Math.nextDown(value.doubleValue()));
+        return value.subtract(BigDecimal.valueOf(0.1).pow(9));
     }
 
     @Override
@@ -52,8 +49,8 @@ public class DecimalType extends OrdinalType<BigDecimal, BigDecimal, DecimalType
     }
 
     @Override
-    protected BigDecimal randomDistance(RandomGenerator generator, BigDecimal range) {
-        return generator.nextDecimal(BigDecimal.ZERO, range);
+    protected Optional<BigDecimal> randomDistance(RandomGenerator generator, BigDecimal range) {
+        return generator.nextDecimal(BigDecimal.ZERO, range).map(d -> d.setScale(9, RoundingMode.HALF_EVEN));
     }
 
     @Override

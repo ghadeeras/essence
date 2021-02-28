@@ -7,9 +7,9 @@ import essence.json.writer.SchemaBasedJsonWriter;
 import essence.json.writer.impl.gen.FieldJsonGenerator;
 import essence.json.writer.impl.gen.OrthogonalJsonGenerator;
 import essence.json.writer.impl.gen.RootJsonGenerator;
+import jakarta.json.Json;
+import jakarta.json.stream.JsonGenerator;
 
-import javax.json.Json;
-import javax.json.stream.JsonGenerator;
 import java.io.Writer;
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -34,7 +34,7 @@ public class GenericJsonWriter implements SchemaBasedJsonWriter, JsonGeneration 
     }
 
     private void with(OrthogonalJsonGenerator generator, Runnable logic) {
-        OrthogonalJsonGenerator oldGenerator = currentGenerator;
+        var oldGenerator = currentGenerator;
         currentGenerator = generator;
         logic.run();
         currentGenerator = oldGenerator;

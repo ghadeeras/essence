@@ -1,8 +1,7 @@
 package essence.json.writer.impl.parts;
 
 import essence.json.writer.ContextualFluentJsonWriter;
-
-import javax.json.stream.JsonGenerator;
+import jakarta.json.stream.JsonGenerator;
 
 public class GenericObjectWriter<C> implements ContextualFluentJsonWriter.ObjectWriter<C> {
 

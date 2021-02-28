@@ -4,16 +4,20 @@ import essence.core.basic.DataType;
 import essence.core.random.RandomGenerator;
 import essence.core.validation.ValidationReporter;
 
+import java.util.Optional;
+
 public class BooleanType implements DataType<Boolean> {
 
+    private static final Integer ONE = 1;
+
     @Override
-    public Boolean identity() {
-        return false;
+    public Class<Boolean> javaType() {
+        return Boolean.class;
     }
 
     @Override
-    public Boolean randomValue(RandomGenerator generator) {
-        return generator.nextInt(0, 1) == 1;
+    public Optional<Boolean> arbitraryValue(RandomGenerator generator) {
+        return generator.nextInt(0, 1).map(ONE::equals);
     }
 
     @Override
