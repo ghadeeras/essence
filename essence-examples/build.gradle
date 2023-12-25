@@ -6,7 +6,7 @@ group 'essence'
 version '1.0-SNAPSHOT'
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_21
 }
 
 repositories {
@@ -14,9 +14,9 @@ repositories {
 }
 
 dependencies {
-    compile project(':essence-core')
-    compile project(':essence-json')
-    compile project(':essence-jdbc')
+    compileOnly project(':essence-core')
+    compileOnly project(':essence-json')
+    compileOnly project(':essence-jdbc')
 
-    compile group: 'org.hsqldb', name: 'hsqldb', version: '2.5.1'
+    implementation group: 'org.hsqldb', name: 'hsqldb', version: '2.7.1'
 }
