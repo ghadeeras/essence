@@ -5,7 +5,7 @@ import essence.core.basic.CompositeType;
 import static essence.core.primitives.Primitives.longInteger;
 import static essence.core.primitives.Primitives.string;
 
-class Person {
+public class Person {
 
     public static class Type extends CompositeType<Person> {
 

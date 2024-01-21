@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 import static essence.core.primitives.Primitives.*;
 
-class Transaction {
+public class Transaction {
 
     public static class Type extends CompositeType<Transaction> {
 
